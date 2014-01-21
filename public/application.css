@@ -1,0 +1,12 @@
+form#hitform {
+	float: left;
+	margin-right: 10px;
+}
+
+form#stayform {
+	float: left;
+}
+
+img.cardimage {
+	margin: 0px 10px 10px 0px;
+}

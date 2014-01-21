@@ -19,11 +19,11 @@ helpers do
 			end
 		end
 
-		#correct for Aces
-#		arr.select{|element| element == "A"}.count times do
-#			break if total <=21
-#			total -= 10
-#		end
+		# correct for Aces
+		arr.select{|element| element == "A"}.count.times do
+			break if total <=21
+			total -= 10
+		end
 
 		total
 	end
@@ -52,12 +52,14 @@ helpers do
 	def winner!(msg)
 		@play_again = true
 		@show_hit_or_stay_buttons=false
+		session[:player_pot] = session[:player_pot] + session[:player_bet]
 		@success = "<strong>#{session[:player_name]} wins!</strong> #{msg}"
 	end
 
 	def loser!(msg)
 		@play_again = true
 		@show_hit_or_stay_buttons=false
+		session[:player_pot] = session[:player_pot] - session[:player_bet]
 		@error = "<strong>#{session[:player_name]} loses.</strong> #{msg}"
 	end
 
@@ -82,6 +84,7 @@ get '/' do
 end
 
 get '/new_player' do
+	session[:player_pot] = 500
 	erb :new_player
 end
 
@@ -93,10 +96,26 @@ post '/new_player' do
 
 	session[:player_name] = params[:player_name]	
 	# progress to the game
-	redirect '/game'
+	redirect '/bet'
 end
 
+get '/bet' do
+	session[:player_bet] = nil
+	erb :bet
+end
 
+post '/bet' do
+	if params[:bet_amount].nil? || params[:bet_amount].to_i == 0
+		@error = "Must make a bet."
+		halt erb(:erb)
+	elsif params[:bet_amount].to_i > session[:player_pot].to_i
+		@error = "Bet amount cannot be greater than what you have."
+		halt erb(:erb)
+	else
+		session[:player_bet] = params[:bet_amount].to_i
+		redirect '/game'
+	end
+end
 
 
 get '/game' do
